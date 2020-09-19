@@ -1,6 +1,6 @@
 package com.modec.vessel_engine.controllers;
 
-import com.modec.vessel_engine.controllers.errors.VesselAlreadyExistsException;
+import com.modec.vessel_engine.controllers.errors.EquipmentAlreadyExistsException;
 import com.modec.vessel_engine.controllers.errors.VesselDoesNotExist;
 import com.modec.vessel_engine.entities.Equipment;
 import com.modec.vessel_engine.entities.Vessel;
@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -35,6 +34,9 @@ public class EquipmentController {
         }
 
         equipment.setVessel(targetVessel.get());
+        if(equipmentRepository.existsById(equipment.getCode())){
+            throw new EquipmentAlreadyExistsException(equipment);
+        }
         return new ResponseEntity<>(equipmentRepository.save(equipment), HttpStatus.CREATED);
     }
 }

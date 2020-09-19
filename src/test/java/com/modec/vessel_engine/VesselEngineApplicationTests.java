@@ -62,6 +62,21 @@ class VesselEngineApplicationTests {
 		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 	}
 
+	@Test
+	void testWhenRegisteringEquipment_withExistingVesselAndInvalidBody_badRequest() throws IOException {
+		ResponseEntity<HttpError> response = post("/vessels/MV123/equipment", "register-equipment-no-code", HttpError.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+		Assertions.assertThat(response.getBody()).hasFieldOrProperty("errorMessage");
+	}
+
+
+	@Test
+	void testWhenRegisteringEquipment_withExistingVesselAndRepeatedCode_conflict() throws IOException {
+		ResponseEntity<HttpError> response = post("/vessels/MV123/equipment", "register-equipment-repeated", HttpError.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+		Assertions.assertThat(response.getBody()).hasFieldOrProperty("errorMessage");
+	}
+
 	protected  <T> ResponseEntity<T> post(String url, String fileName, Class<T> responseType) throws IOException {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);

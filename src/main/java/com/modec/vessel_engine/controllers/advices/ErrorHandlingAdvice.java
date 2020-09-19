@@ -5,6 +5,7 @@ import com.modec.vessel_engine.controllers.errors.PersistenceConflictException;
 import com.modec.vessel_engine.controllers.errors.VesselDoesNotExist;
 import com.modec.vessel_engine.entities.HttpError;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -24,6 +25,14 @@ public class ErrorHandlingAdvice {
     @ResponseBody
     @ExceptionHandler(VesselDoesNotExist.class)
     private HttpError vesselNotFoundHandler(VesselDoesNotExist ex){
+        return new HttpError(ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    private HttpError invalidRequestHandler(Throwable ex){
+        // TODO: Improve error message
         return new HttpError(ex.getMessage());
     }
 
