@@ -14,7 +14,7 @@ import javax.validation.Valid;
 public class VesselController {
 
     @PostMapping
-    public ResponseEntity<String> create(@Valid @RequestBody VesselTO vessel){
-        return ResponseEntity.ok("OK");
+    public ResponseEntity<VesselTO> create(@Valid @RequestBody VesselTO vessel){
+        return ResponseEntity.ok(vessel);
     }
 }
