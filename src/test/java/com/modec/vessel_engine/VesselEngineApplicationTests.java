@@ -1,5 +1,6 @@
 package com.modec.vessel_engine;
 
+import com.modec.vessel_engine.entities.Equipment;
 import com.modec.vessel_engine.entities.HttpError;
 import com.modec.vessel_engine.entities.Vessel;
 import com.modec.vessel_engine.utils.Json;
@@ -35,7 +36,7 @@ class VesselEngineApplicationTests {
 	}
 
 	@Test
-	void testWhenCreatingVessel_withValidBodyAndUniqueCode_ok() throws IOException {
+	void testWhenCreatingVessel_withValidBodyAndUniqueCode_created() throws IOException {
 		ResponseEntity<Vessel> response = post("/vessels", "create-vessel", Vessel.class);
 		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		Assertions.assertThat(response.getBody()).hasFieldOrProperty("code");
@@ -46,6 +47,19 @@ class VesselEngineApplicationTests {
 		ResponseEntity<HttpError> response = post("/vessels", "create-vessel-repeated", HttpError.class);
 		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
 		Assertions.assertThat(response.getBody()).hasFieldOrProperty("errorMessage");
+	}
+
+	@Test
+	void testWhenRegisteringEquipment_withNonExistingVessel_notFound() throws IOException {
+		ResponseEntity<HttpError> response = post("/vessels/MV404/equipment", "register-equipment", HttpError.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+		Assertions.assertThat(response.getBody()).hasFieldOrProperty("errorMessage");
+	}
+
+	@Test
+	void testWhenRegisteringEquipment_withExistingVesselAndValidBody_created() throws IOException {
+		ResponseEntity<Equipment> response = post("/vessels/MV123/equipment", "register-equipment", Equipment.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 	}
 
 	protected  <T> ResponseEntity<T> post(String url, String fileName, Class<T> responseType) throws IOException {

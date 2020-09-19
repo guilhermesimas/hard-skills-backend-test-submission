@@ -2,6 +2,7 @@ package com.modec.vessel_engine.controllers.advices;
 
 import com.modec.vessel_engine.controllers.VesselController;
 import com.modec.vessel_engine.controllers.errors.PersistenceConflictException;
+import com.modec.vessel_engine.controllers.errors.VesselDoesNotExist;
 import com.modec.vessel_engine.entities.HttpError;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,6 +17,13 @@ public class ErrorHandlingAdvice {
     @ResponseBody
     @ExceptionHandler(PersistenceConflictException.class)
     private HttpError persistenceConflictError(PersistenceConflictException ex){
+        return new HttpError(ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    @ExceptionHandler(VesselDoesNotExist.class)
+    private HttpError vesselNotFoundHandler(VesselDoesNotExist ex){
         return new HttpError(ex.getMessage());
     }
 
