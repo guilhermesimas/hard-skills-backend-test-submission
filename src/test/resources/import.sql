@@ -1,0 +1,1 @@
+INSERT INTO vessel (code) VALUES ('MV123');

@@ -1,6 +1,7 @@
 package com.modec.vessel_engine;
 
-import com.modec.vessel_engine.contracts.VesselTO;
+import com.modec.vessel_engine.entities.HttpError;
+import com.modec.vessel_engine.entities.Vessel;
 import com.modec.vessel_engine.utils.Json;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,9 +36,16 @@ class VesselEngineApplicationTests {
 
 	@Test
 	void testWhenCreatingVessel_withValidBodyAndUniqueCode_ok() throws IOException {
-		ResponseEntity<VesselTO> response = post("/vessels", "create-vessel", VesselTO.class);
-		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		ResponseEntity<Vessel> response = post("/vessels", "create-vessel", Vessel.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		Assertions.assertThat(response.getBody()).hasFieldOrProperty("code");
+	}
+
+	@Test
+	void testWhenCreatingVessel_withValidBodyAndRepeatedCode_conflict() throws IOException {
+		ResponseEntity<HttpError> response = post("/vessels", "create-vessel-repeated", HttpError.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+		Assertions.assertThat(response.getBody()).hasFieldOrProperty("errorMessage");
 	}
 
 	protected  <T> ResponseEntity<T> post(String url, String fileName, Class<T> responseType) throws IOException {
