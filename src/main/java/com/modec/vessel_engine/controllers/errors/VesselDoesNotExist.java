@@ -4,7 +4,7 @@ import com.modec.vessel_engine.entities.Vessel;
 
 import javax.validation.Valid;
 
-public class VesselDoesNotExist extends RuntimeException {
+public class VesselDoesNotExist extends ResourceDoesNotExist {
     private final String errorMessage;
     public VesselDoesNotExist(String vesselCode) {
         this.errorMessage = "Vessel with code " + vesselCode + " does not exist.";

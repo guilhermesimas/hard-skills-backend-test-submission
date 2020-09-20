@@ -1,7 +1,7 @@
 package com.modec.vessel_engine;
 
 import com.modec.vessel_engine.entities.Equipment;
-import com.modec.vessel_engine.entities.HttpError;
+import com.modec.vessel_engine.contracts.HttpError;
 import com.modec.vessel_engine.entities.Vessel;
 import com.modec.vessel_engine.utils.Json;
 import org.assertj.core.api.Assertions;
@@ -14,12 +14,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@Transactional
 class VesselEngineApplicationTests {
 
 	@Autowired
@@ -69,12 +71,17 @@ class VesselEngineApplicationTests {
 		Assertions.assertThat(response.getBody()).hasFieldOrProperty("errorMessage");
 	}
 
-
 	@Test
 	void testWhenRegisteringEquipment_withExistingVesselAndRepeatedCode_conflict() throws IOException {
 		ResponseEntity<HttpError> response = post("/vessels/MV123/equipment", "register-equipment-repeated", HttpError.class);
 		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
 		Assertions.assertThat(response.getBody()).hasFieldOrProperty("errorMessage");
+	}
+
+	@Test
+	void testWhenDeactivatingEquipment_withExistingEquipment_noContent() throws IOException {
+		ResponseEntity<Void> response = post("/vessels/MV123/equipment/deactivate", "deactivate-equipment", Void.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 	}
 
 	protected  <T> ResponseEntity<T> post(String url, String fileName, Class<T> responseType) throws IOException {

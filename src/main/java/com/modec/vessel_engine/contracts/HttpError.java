@@ -1,4 +1,4 @@
-package com.modec.vessel_engine.entities;
+package com.modec.vessel_engine.contracts;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
