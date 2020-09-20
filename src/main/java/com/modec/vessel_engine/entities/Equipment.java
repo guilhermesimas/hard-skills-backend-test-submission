@@ -43,6 +43,7 @@ public class Equipment {
     @JsonProperty(required = true)
     private String location;
 
+    @NotNull
     @JsonProperty(access = JsonProperty.Access.READ_ONLY, defaultValue = "active")
     private String status = "active";
 

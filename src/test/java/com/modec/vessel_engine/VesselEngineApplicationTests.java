@@ -1,5 +1,6 @@
 package com.modec.vessel_engine;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.modec.vessel_engine.entities.Equipment;
 import com.modec.vessel_engine.contracts.HttpError;
 import com.modec.vessel_engine.entities.Vessel;
@@ -17,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -33,7 +36,7 @@ class VesselEngineApplicationTests {
 
 	@Test
 	void testWhenCreatingVessel_withoutCode_badRequest() throws IOException {
-		ResponseEntity<String> response = post("/vessels", "create-vessel-no-code", String.class);
+		ResponseEntity<String> response = post("/vessels", "invalid-body", String.class);
 		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 	}
 
@@ -84,11 +87,42 @@ class VesselEngineApplicationTests {
 		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 	}
 
+	@Test
+	void testWhenDeactivatingEquipment_withNonExistentEquipment_unprocessableEntity() throws IOException {
+		ResponseEntity<HttpError> response = post("/vessels/MV123/equipment/deactivate", "deactivate-equipment-too-many", HttpError.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+	}
+
+	@Test
+	void testWhenDeactivatingEquipment_withNoEquipmentList_badRequest() throws IOException {
+		ResponseEntity<HttpError> response = post("/vessels/MV123/equipment/deactivate", "invalid-body", HttpError.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	void testWhenListingActiveEquipment_withNonExistentVessel_notFound() throws IOException {
+		ResponseEntity<HttpError> response = get("/vessels/MV404/equipment", HttpError.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+	}
+
+	@Test
+	void testWhenListingActiveEquipment_ok() throws IOException {
+		ResponseEntity<List> response = get("/vessels/MV456/equipment", List.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		List<LinkedHashMap> responseBody = response.getBody();
+		Assertions.assertThat(responseBody).hasSize(1);
+		Assertions.assertThat(responseBody.get(0).get("name")).isEqualTo("shouldappear");
+	}
+
 	protected  <T> ResponseEntity<T> post(String url, String fileName, Class<T> responseType) throws IOException {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> request = new HttpEntity<String>(Json.loadJson(fileName), headers);
 		return testRestTemplate.postForEntity(url, request, responseType);
+	}
+
+	protected  <T> ResponseEntity<T> get(String url, Class<T> responseType) throws IOException {
+		return testRestTemplate.getForEntity(url, responseType);
 	}
 
 }

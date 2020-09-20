@@ -1,6 +1,7 @@
 package com.modec.vessel_engine.controllers.advices;
 
 import com.modec.vessel_engine.controllers.VesselController;
+import com.modec.vessel_engine.controllers.errors.InvalidResource;
 import com.modec.vessel_engine.controllers.errors.PersistenceConflictException;
 import com.modec.vessel_engine.controllers.errors.ResourceDoesNotExist;
 import com.modec.vessel_engine.contracts.HttpError;
@@ -31,8 +32,15 @@ public class ErrorHandlingAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    private HttpError invalidRequestHandler(Throwable ex){
+    private HttpError invalidRequestHandler(MethodArgumentNotValidException ex){
         // TODO: Improve error message
+        return new HttpError(ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ResponseBody
+    @ExceptionHandler(InvalidResource.class)
+    private HttpError invalidResourceHandler(InvalidResource ex){
         return new HttpError(ex.getMessage());
     }
 
