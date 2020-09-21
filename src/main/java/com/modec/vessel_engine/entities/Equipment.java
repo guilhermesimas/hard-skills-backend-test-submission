@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,22 +28,26 @@ import javax.validation.constraints.NotNull;
 @Table
 public class Equipment {
 
+    @ApiModelProperty("Equipment's unique identification code")
     @NotNull
     @NotEmpty
     @JsonProperty(required = true)
     @Id
     private String code;
 
+    @ApiModelProperty("Equipment's name")
     @NotNull
     @NotEmpty
     @JsonProperty(required = true)
     private String name;
 
+    @ApiModelProperty("Equipment's location")
     @NotNull
     @NotEmpty
     @JsonProperty(required = true)
     private String location;
 
+    @ApiModelProperty("Equipment's status")
     @NotNull
     @JsonProperty(access = JsonProperty.Access.READ_ONLY, defaultValue = "active")
     private String status = "active";

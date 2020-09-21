@@ -9,6 +9,9 @@ import com.modec.vessel_engine.entities.Equipment;
 import com.modec.vessel_engine.entities.Vessel;
 import com.modec.vessel_engine.repositories.EquipmentRepository;
 import com.modec.vessel_engine.repositories.VesselRepository;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -32,6 +35,13 @@ public class EquipmentController {
     private final VesselRepository vesselRepository;
     private final EquipmentRepository equipmentRepository;
 
+    @ApiOperation("Register an equipment to a vessel")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Returns registered equipment"),
+            @ApiResponse(code = 404, message = "Target vessel does not exist"),
+            @ApiResponse(code = 400, message = "Invalid request parameters"),
+            @ApiResponse(code = 409, message = "Equipment with same code already exists")
+    })
     @PostMapping("vessels/{vesselCode}/equipment")
     public ResponseEntity<Equipment> create(@PathVariable("vesselCode") String vesselCode, @Valid @RequestBody Equipment equipment) {
         Optional<Vessel> targetVessel = vesselRepository.findById(vesselCode);
@@ -47,6 +57,12 @@ public class EquipmentController {
         return new ResponseEntity<>(equipmentRepository.save(equipment), HttpStatus.CREATED);
     }
 
+    @ApiOperation("Batch deactivate equipments")
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "Equipment have been deactivated"),
+            @ApiResponse(code = 404, message = "Target vessel does not exist"),
+            @ApiResponse(code = 400, message = "Invalid request parameters")
+    })
     @PostMapping("vessels/{vesselCode}/equipment/deactivate")
     public ResponseEntity<Void> update(@PathVariable("vesselCode") String vesselCode, @Valid @RequestBody DeactivateEquipment deactivateEquipment) {
         if(vesselRepository.existsById(vesselCode) == false){
@@ -74,6 +90,11 @@ public class EquipmentController {
         return ResponseEntity.noContent().build();
     }
 
+    @ApiOperation("Get all active equipment for target vessel")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns all active equipment for vessel"),
+            @ApiResponse(code = 404, message = "Target vessel does not exist")
+    })
     @GetMapping("vessels/{vesselCode}/equipment")
     public ResponseEntity<List<Equipment>> listVesselEquipment(@PathVariable("vesselCode") String vesselCode) {
         Optional<Vessel> targetVessel = vesselRepository.findById(vesselCode);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +26,7 @@ import javax.validation.constraints.NotNull;
 @Table
 public class Vessel implements Persistable<String> {
 
+    @ApiModelProperty(value = "Vessel's unique identification code")
     @NotNull
     @NotEmpty
     @JsonProperty(required = true)
