@@ -4,9 +4,10 @@ import com.modec.vessel_engine.controllers.VesselController;
 import com.modec.vessel_engine.controllers.errors.InvalidResource;
 import com.modec.vessel_engine.controllers.errors.PersistenceConflictException;
 import com.modec.vessel_engine.controllers.errors.ResourceDoesNotExist;
-import com.modec.vessel_engine.contracts.HttpError;
+import com.modec.vessel_engine.entities.HttpError;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -32,8 +33,14 @@ public class ErrorHandlingAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    private HttpError invalidRequestHandler(MethodArgumentNotValidException ex){
-        // TODO: Improve error message
+    private HttpError invalidRequestBodyHandler(MethodArgumentNotValidException ex){
+        return HttpError.of(ex);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    private HttpError invalidRequestParamHandler(MissingServletRequestParameterException ex){
         return new HttpError(ex.getMessage());
     }
 

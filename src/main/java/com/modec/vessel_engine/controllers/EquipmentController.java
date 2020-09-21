@@ -1,8 +1,6 @@
 package com.modec.vessel_engine.controllers;
 
-import com.modec.vessel_engine.contracts.DeactivateEquipment;
 import com.modec.vessel_engine.controllers.errors.EquipmentAlreadyExistsException;
-import com.modec.vessel_engine.controllers.errors.EquipmentDoesNotExist;
 import com.modec.vessel_engine.controllers.errors.InvalidEquipmentList;
 import com.modec.vessel_engine.controllers.errors.VesselDoesNotExist;
 import com.modec.vessel_engine.entities.Equipment;
@@ -10,15 +8,18 @@ import com.modec.vessel_engine.entities.Vessel;
 import com.modec.vessel_engine.repositories.EquipmentRepository;
 import com.modec.vessel_engine.repositories.VesselRepository;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -61,23 +62,27 @@ public class EquipmentController {
             @ApiResponse(code = 404, message = "Target vessel does not exist"),
             @ApiResponse(code = 400, message = "Invalid request parameters")
     })
-    @PostMapping("vessels/{vesselCode}/equipment/deactivate")
-    public ResponseEntity<Void> update(@PathVariable("vesselCode") String vesselCode, @Valid @RequestBody DeactivateEquipment deactivateEquipment) {
+    @DeleteMapping("vessels/{vesselCode}/equipment")
+    public ResponseEntity<Void>
+    update(@PathVariable("vesselCode") String vesselCode,
+           @ApiParam("Comma separated list of equipment codes to deactivate")
+           @RequestParam("code") List<String> deactivateEquipment) {
+
         if(vesselRepository.existsById(vesselCode) == false){
             throw new VesselDoesNotExist(vesselCode);
         }
 
-        List<Equipment> toDeactivate = equipmentRepository.findAllById(deactivateEquipment.getEquipment())
+        List<Equipment> toDeactivate = equipmentRepository.findAllById(deactivateEquipment)
                 .stream()
                 .filter(equipment -> (
                         equipment.getStatus().equals("active")
                         && equipment.getVessel().getCode().equals(vesselCode)))
                 .collect(Collectors.toUnmodifiableList());
-        if(toDeactivate.size() < deactivateEquipment.getEquipment().size()) {
+        if(toDeactivate.size() < deactivateEquipment.size()) {
             List<String> foundEquipment = toDeactivate.stream()
                     .map(Equipment::getCode)
                     .collect(Collectors.toUnmodifiableList());
-            List<String> notFoundEquipment = deactivateEquipment.getEquipment().stream()
+            List<String> notFoundEquipment = deactivateEquipment.stream()
                     .filter(foundEquipment::contains)
                     .collect(Collectors.toUnmodifiableList());
             throw new InvalidEquipmentList(notFoundEquipment);

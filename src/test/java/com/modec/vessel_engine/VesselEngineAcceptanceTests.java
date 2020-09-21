@@ -1,8 +1,7 @@
 package com.modec.vessel_engine;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.modec.vessel_engine.entities.Equipment;
-import com.modec.vessel_engine.contracts.HttpError;
+import com.modec.vessel_engine.entities.HttpError;
 import com.modec.vessel_engine.entities.Vessel;
 import com.modec.vessel_engine.utils.Json;
 import org.assertj.core.api.Assertions;
@@ -12,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -82,21 +82,21 @@ class VesselEngineAcceptanceTests {
 	}
 
 	@Test
-	void testWhenDeactivatingEquipment_withExistingEquipment_noContent() throws IOException {
-		ResponseEntity<Void> response = post("/vessels/MV123/equipment/deactivate", "deactivate-equipment", Void.class);
-		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-	}
-
-	@Test
 	void testWhenDeactivatingEquipment_withNonExistentEquipment_unprocessableEntity() throws IOException {
-		ResponseEntity<HttpError> response = post("/vessels/MV123/equipment/deactivate", "deactivate-equipment-too-many", HttpError.class);
+		ResponseEntity<HttpError> response = delete("/vessels/MV123/equipment?code=MV409,MV422", HttpError.class);
 		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
 	@Test
 	void testWhenDeactivatingEquipment_withNoEquipmentList_badRequest() throws IOException {
-		ResponseEntity<HttpError> response = post("/vessels/MV123/equipment/deactivate", "invalid-body", HttpError.class);
+		ResponseEntity<HttpError> response = delete("/vessels/MV123/equipment", HttpError.class);
 		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	void testWhenDeactivatingEquipment_withExistingEquipment_noContent() throws IOException {
+		ResponseEntity<Void> response = delete("/vessels/MV123/equipment?code=MV409", Void.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 	}
 
 	@Test
@@ -119,6 +119,10 @@ class VesselEngineAcceptanceTests {
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> request = new HttpEntity<String>(Json.loadJson(fileName), headers);
 		return testRestTemplate.postForEntity(url, request, responseType);
+	}
+
+	protected  <T> ResponseEntity<T> delete(String url, Class<T> responseType) throws IOException {
+		return testRestTemplate.exchange(url, HttpMethod.DELETE, null, responseType);
 	}
 
 	protected  <T> ResponseEntity<T> get(String url, Class<T> responseType) throws IOException {

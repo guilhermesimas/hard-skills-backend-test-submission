@@ -70,9 +70,9 @@ I was familiar with an approach on RESTful APIs which offered batch-like operati
 the status of the process, being therefore a resource of types, and thus matching the RESTful model. This might, however,
 be an overengineering of the feature. 
   
- In the end I opted for exposing the feature by `POST`ing a `deactivate` resource under the `equipment` collection. 
- I did not, however, expose the queryable resource as the operation is fairly simple and its result would be available
- fairly quickly.
+ In the end I opted for exposing the feature by `DELETE`ing the `equipment` collection while requiring the code of the 
+ target equipment as a request parameter. It fit the model as it is basically a `DELETE` on the whole collection while
+ applying a filter.
  
  ### Next steps
  
