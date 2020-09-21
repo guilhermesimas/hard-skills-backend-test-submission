@@ -53,25 +53,32 @@ Since the project features were mainly focused on persisting and exposing resour
 match.
 
 The relational modelling described made clear that all equipments are associated with a vessel, as as such it made sense
- to me to expose the `equipment`resource under a `vessel` resource.
+to me to expose the `equipment`resource under a `vessel` resource.
  
- Features 1, 2 and 4 of the requirements fit straight away in the RESTful model:
+Features 1, 2 and 4 of the requirements fit straight away in the RESTful model:
  
 *  Creating a vessel easily translated to a `POST` request to the `vessel` collection. 
 * Registering an equipment could be interpreted as creating an equipment, and as such translated to a `POST` request
- to the `equipment` collection (under a `vessel` resource). 
- * Querying active equipment of a given vessel
-  was exposed via a `GET` request to the `equipment` collection under the `vessel` resource.
+to the `equipment` collection (under a `vessel` resource). 
+* Querying active equipment of a given vessel
+was exposed via a `GET` request to the `equipment` collection under the `vessel` resource.
   
-   Deactivating multiple equipment by passing one or a list of `equipment` proved a little more of a challenge. 
+Deactivating multiple equipment by passing one or a list of `equipment` proved a little more of a challenge. 
    
-  I was familiar with an approach on RESTful APIs which offered batch-like operations via `POST`ing a sort of
-   `action`-like collection. The issued operation is then queryable, in order to consult
-  the status of the process, being therefore a resource of types, and thus matching the RESTful model. This might, however,
-  be an overengineering of the feature. 
+I was familiar with an approach on RESTful APIs which offered batch-like operations via `POST`ing a sort of
+`action`-like collection. The issued operation is then queryable, in order to consult
+the status of the process, being therefore a resource of types, and thus matching the RESTful model. This might, however,
+be an overengineering of the feature. 
   
-  Another valid approach would be to issue a `DELETE` on the `equipment` collection, passing the target equipment list.
-  This would be a very simple and effective implementation, but 
- In the end I opted for exposing the feature by `POST`ing a `deactivate` resource under the `equipment` collection. It made sense as
-  the user would be creating a sort of action-like resource. 
+ In the end I opted for exposing the feature by `POST`ing a `deactivate` resource under the `equipment` collection. 
+ I did not, however, expose the queryable resource as the operation is fairly simple and its result would be available
+ fairly quickly.
  
+ ### Next steps
+ 
+ Future improvements to the project would involve:
+ * As business logic and operations grow, separate the controller from the data layer, by using service abstractions.
+ * More descriptive error messages.
+ * Transaction control.
+ * As layers grow, add component, integration and unit testing.
+ * Input validation such as location names.

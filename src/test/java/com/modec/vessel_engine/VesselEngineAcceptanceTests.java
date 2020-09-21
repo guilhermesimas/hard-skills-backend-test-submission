@@ -25,7 +25,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Transactional
-class VesselEngineApplicationTests {
+class VesselEngineAcceptanceTests {
 
 	@Autowired
 	TestRestTemplate testRestTemplate;
